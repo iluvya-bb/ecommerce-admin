@@ -10,6 +10,7 @@ function ProductForm() {
 	const [description, setDescription] = useState("");
 	const [price, setPrice] = useState("");
 	const [stock, setStock] = useState("");
+	const [isFeatured, setIsFeatured] = useState(false);
 	const [existingImages, setExistingImages] = useState([]);
 	const [newImages, setNewImages] = useState([]);
 	const [newImagePreviews, setNewImagePreviews] = useState([]);
@@ -58,6 +59,7 @@ function ProductForm() {
 					setDescription(product.description || "");
 					setPrice(product.price);
 					setStock(product.stock);
+					setIsFeatured(product.isFeatured);
 					setExistingImages(product.images || []);
 					setFeaturedImage(product.featuredImage);
 
@@ -166,6 +168,7 @@ function ProductForm() {
 		formData.append("description", description);
 		formData.append("price", price);
 		formData.append("stock", stock);
+		formData.append("isFeatured", isFeatured);
 
 		const categoryIds = selectedCategories.map((c) => c.id);
 		formData.append("categoryIds", JSON.stringify(categoryIds));
@@ -213,6 +216,12 @@ function ProductForm() {
 				<div>
 					<label htmlFor="stock" className="block text-sm font-medium text-gray-700">Үлдэгдэл</label>
 					<input id="stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required className="w-full px-3 py-2 mt-1 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+				</div>
+				<div>
+					<label htmlFor="isFeatured" className="flex items-center text-sm font-medium text-gray-700">
+						<input id="isFeatured" type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"/>
+						Онцлох бүтээгдэхүүн
+					</label>
 				</div>
 				<div>
 					<label className="block text-sm font-medium text-gray-700">Ангилал</label>
