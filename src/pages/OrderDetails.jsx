@@ -71,6 +71,7 @@ function OrderDetails() {
 						{order.contact && (
 							<>
 								<p><strong>Холбоо барих нэр:</strong> {order.contact.name}</p>
+								<p><strong>И-мэйл:</strong> {order.contact.email}</p>
 								<p><strong>Хаяг:</strong> {order.contact.address}</p>
 								<p><strong>Утас:</strong> {order.contact.phone}</p>
 							</>

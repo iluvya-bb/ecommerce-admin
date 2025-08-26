@@ -7,7 +7,7 @@ function NewOrder() {
 	const [allProducts, setAllProducts] = useState([]);
 	const [productToAdd, setProductToAdd] = useState("");
 	const [selectedProducts, setSelectedProducts] = useState([]);
-	const [contact, setContact] = useState({ name: "", address: "", phone: "" });
+	const [contact, setContact] = useState({ name: "", address: "", phone: "", email: "" });
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
 
@@ -93,6 +93,10 @@ function NewOrder() {
 					<div>
 						<label htmlFor="phone" className="block text-sm font-medium text-gray-700">Утас</label>
 						<input type="text" name="phone" id="phone" value={contact.phone} onChange={handleContactChange} required className="w-full px-3 py-2 mt-1 border rounded-md"/>
+					</div>
+					<div>
+						<label htmlFor="email" className="block text-sm font-medium text-gray-700">И-мэйл</label>
+						<input type="email" name="email" id="email" value={contact.email} onChange={handleContactChange} required className="w-full px-3 py-2 mt-1 border rounded-md"/>
 					</div>
 				</div>
 

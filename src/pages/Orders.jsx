@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { formatCurrency } from "../utils/formatCurrency";
@@ -9,35 +9,41 @@ function Orders() {
 	const [pagination, setPagination] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
-	const [searchTerm, setSearchTerm] = useState("");
+	const [searchParams, setSearchParams] = useSearchParams();
+	
+	// State for filter inputs
+	const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
 	const [statusFilter, setStatusFilter] = useState("");
+	
 	const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "DESC" });
 	const [currentPage, setCurrentPage] = useState(1);
 	const navigate = useNavigate();
 
+	const fetchOrders = async () => {
+		setLoading(true);
+		try {
+			const params = {
+				page: currentPage,
+				limit: 10,
+				sortBy: sortConfig.key,
+				sortOrder: sortConfig.direction,
+				status: statusFilter,
+				q: searchTerm,
+			};
+			const response = await API.getAllOrdersAdmin(params);
+			setOrders(response.data.data);
+			setPagination(response.data.pagination);
+		} catch (err) {
+			setError("Захиалга татахад алдаа гарлаа.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// Fetch orders when page, sorting, or search params change
 	useEffect(() => {
-		const fetchOrders = async () => {
-			setLoading(true);
-			try {
-				const params = {
-					page: currentPage,
-					limit: 10,
-					sortBy: sortConfig.key,
-					sortOrder: sortConfig.direction,
-					status: statusFilter,
-					q: searchTerm, // Assuming backend supports search term `q`
-				};
-				const response = await API.getAllOrdersAdmin(params);
-				setOrders(response.data.data);
-				setPagination(response.data.pagination);
-			} catch (err) {
-				setError("Захиалга татахад алдаа гарлаа.");
-			} finally {
-				setLoading(false);
-			}
-		};
 		fetchOrders();
-	}, [currentPage, sortConfig, statusFilter, searchTerm]);
+	}, [currentPage, sortConfig, searchParams]);
 
 	const handleSort = (key) => {
 		let direction = "ASC";
@@ -45,6 +51,13 @@ function Orders() {
 			direction = "DESC";
 		}
 		setSortConfig({ key, direction });
+	};
+
+	const handleFilter = () => {
+		setCurrentPage(1); // Reset to first page when filters change
+		// Update URL search params to reflect the new search term
+		setSearchParams(searchTerm ? { q: searchTerm } : {});
+		fetchOrders();
 	};
 
 	const SortIcon = ({ columnKey }) => {
@@ -72,77 +85,91 @@ function Orders() {
 					Шинэ захиалга
 				</Link>
 			</div>
-			<div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
-				<input
-					type="text"
-					placeholder="Хайх..."
-					value={searchTerm}
-					onChange={(e) => setSearchTerm(e.target.value)}
-					className="w-full px-3 py-2 border rounded-md shadow-sm"
-				/>
-				<select
-					value={statusFilter}
-					onChange={(e) => setStatusFilter(e.target.value)}
-					className="w-full px-3 py-2 border rounded-md shadow-sm"
-				>
-					<option value="">Бүх төлөв</option>
-					<option value="Awaiting Payment">Төлбөр хүлээгдэж буй</option>
-					<option value="Processing">Боловсруулагдаж байна</option>
-					<option value="Shipped">Хүргэгдсэн</option>
-					<option value="Done">Дууссан</option>
-				</select>
+			<div className="p-4 mb-4 bg-gray-100 rounded-lg">
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+					<input
+						type="text"
+						placeholder="Хайх..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						className="w-full col-span-full sm:col-span-2 px-3 py-2 border rounded-md shadow-sm"
+					/>
+					<select
+						value={statusFilter}
+						onChange={(e) => setStatusFilter(e.target.value)}
+						className="w-full px-3 py-2 border rounded-md shadow-sm"
+					>
+						<option value="">Бүх төлөв</option>
+						<option value="Awaiting Payment">Төлбөр хүлээгдэж буй</option>
+						<option value="Processing">Боловсруулагдаж байна</option>
+						<option value="Shipped">Хүргэгдсэн</option>
+						<option value="Done">Дууссан</option>
+					</select>
+				</div>
+				<div className="flex justify-end mt-4">
+					<button
+						onClick={handleFilter}
+						className="w-full sm:w-auto px-6 py-2 font-bold text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+					>
+						Apply Filters
+					</button>
+				</div>
 			</div>
-			<div className="p-5 bg-white rounded-lg shadow-md">
-				<table className="w-full">
-					<thead>
-						<tr className="border-b">
-							<th className="p-3 text-left cursor-pointer" onClick={() => handleSort("id")}>
-								ID <SortIcon columnKey="id" />
-							</th>
-							<th className="p-3 text-left">Хэрэглэгч</th>
-							<th className="p-3 text-left cursor-pointer" onClick={() => handleSort("createdAt")}>
-								Огноо <SortIcon columnKey="createdAt" />
-							</th>
-							<th className="p-3 text-left">Захиалгын төлөв</th>
-							<th className="p-3 text-left">Төлбөрийн төлөв</th>
-							<th className="p-3 text-left cursor-pointer" onClick={() => handleSort("total")}>
-								Нийт <SortIcon columnKey="total" />
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						{orders.map((order) => (
-							<tr
-								key={order.id}
-								className="border-b cursor-pointer hover:bg-gray-50"
-								onClick={() => navigate(`/order/${order.id}`)}
-							>
-								<td className="p-3">#{order.id}</td>
-								<td className="p-3">{order.contact ? order.contact.name : "N/A"}</td>
-								<td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
-								<td className="p-3">
-									<span className={`px-2 py-1 rounded-full text-sm ${
-										order.status === "Shipped" ? "bg-blue-100 text-blue-800"
-										: order.status === "Processing" ? "bg-yellow-100 text-yellow-800"
-										: order.status === "Done" ? "bg-green-100 text-green-800"
-										: "bg-red-100 text-red-800"
-									}`}>
-										{order.status}
-									</span>
-								</td>
-								<td className="p-3">
-									<span className={`px-2 py-1 rounded-full text-sm ${
-										order.paymentRequest?.status === "Paid" ? "bg-green-100 text-green-800"
-										: "bg-yellow-100 text-yellow-800"
-									}`}>
-										{order.paymentRequest?.status || "Pending"}
-									</span>
-								</td>
-								<td className="p-3">{formatCurrency(order.total)}</td>
+			<div className="overflow-x-auto bg-white rounded-lg shadow-md">
+				<div className="p-5">
+					<table className="w-full">
+						<thead>
+							<tr className="border-b">
+								<th className="p-3 text-left cursor-pointer" onClick={() => handleSort("id")}>
+									ID <SortIcon columnKey="id" />
+								</th>
+								<th className="p-3 text-left">Payment Code</th>
+								<th className="p-3 text-left">Хэрэглэгч</th>
+								<th className="p-3 text-left cursor-pointer" onClick={() => handleSort("createdAt")}>
+									Огноо <SortIcon columnKey="createdAt" />
+								</th>
+								<th className="p-3 text-left">Захиалгын төлөв</th>
+								<th className="p-3 text-left">Төлбөрийн төлөв</th>
+								<th className="p-3 text-left cursor-pointer" onClick={() => handleSort("total")}>
+									Нийт <SortIcon columnKey="total" />
+								</th>
 							</tr>
-						))}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{orders.map((order) => (
+								<tr
+									key={order.id}
+									className="border-b cursor-pointer hover:bg-gray-50"
+									onClick={() => navigate(`/order/${order.id}`)}
+								>
+									<td className="p-3">#{order.id}</td>
+									<td className="p-3">{order.paymentRequest?.code || "N/A"}</td>
+									<td className="p-3">{order.contact ? `${order.contact.name} (${order.contact.email})` : "N/A"}</td>
+									<td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
+									<td className="p-3">
+										<span className={`px-2 py-1 rounded-full text-sm ${
+											order.status === "Shipped" ? "bg-blue-100 text-blue-800"
+											: order.status === "Processing" ? "bg-yellow-100 text-yellow-800"
+											: order.status === "Done" ? "bg-green-100 text-green-800"
+											: "bg-red-100 text-red-800"
+										}`}>
+											{order.status}
+										</span>
+									</td>
+									<td className="p-3">
+										<span className={`px-2 py-1 rounded-full text-sm ${
+											order.paymentRequest?.status === "Paid" ? "bg-green-100 text-green-800"
+											: "bg-yellow-100 text-yellow-800"
+										}`}>
+											{order.paymentRequest?.status || "Pending"}
+										</span>
+									</td>
+									<td className="p-3">{formatCurrency(order.total)}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			</div>
 			{pagination && (
 				<div className="flex items-center justify-between mt-4">

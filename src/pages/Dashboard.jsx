@@ -66,47 +66,49 @@ const Dashboard = () => {
 
 			<div className="mt-8">
 				<h3 className="mb-4 text-2xl font-bold">Сүүлийн захиалгууд</h3>
-				<div className="p-5 bg-white rounded-lg shadow-md">
-					<table className="w-full">
-						<thead>
-							<tr className="border-b">
-								<th className="p-3 text-left">Захиалгын дугаар</th>
-								<th className="p-3 text-left">Хэрэглэгч</th>
-								<th className="p-3 text-left">Огноо</th>
-								<th className="p-3 text-left">Төлөв</th>
-								<th className="p-3 text-left">Нийт</th>
-							</tr>
-						</thead>
-						<tbody>
-							{stats.recentOrders.map((order) => (
-								<tr
-									key={order.id}
-									className="border-b cursor-pointer hover:bg-gray-50"
-									onClick={() => navigate(`/order/${order.id}`)}
-								>
-									<td className="p-3">#{order.id}</td>
-									<td className="p-3">{order.contact ? order.contact.name : "N/A"}</td>
-									<td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
-									<td className="p-3">
-										<span
-											className={`px-2 py-1 rounded-full text-sm ${
-												order.status === "Shipped"
-													? "bg-blue-100 text-blue-800"
-													: order.status === "Processing"
-													? "bg-yellow-100 text-yellow-800"
-													: order.status === "Done"
-													? "bg-green-100 text-green-800"
-													: "bg-red-100 text-red-800"
-											}`}
-										>
-											{order.status}
-										</span>
-									</td>
-									<td className="p-3">{formatCurrency(order.total)}</td>
+				<div className="overflow-x-auto bg-white rounded-lg shadow-md">
+					<div className="p-5">
+						<table className="w-full">
+							<thead>
+								<tr className="border-b">
+									<th className="p-3 text-left">Захиалгын дугаар</th>
+									<th className="p-3 text-left">Хэрэглэгч</th>
+									<th className="p-3 text-left">Огноо</th>
+									<th className="p-3 text-left">Төлөв</th>
+									<th className="p-3 text-left">Нийт</th>
 								</tr>
-							))}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								{stats.recentOrders.map((order) => (
+									<tr
+										key={order.id}
+										className="border-b cursor-pointer hover:bg-gray-50"
+										onClick={() => navigate(`/order/${order.id}`)}
+									>
+										<td className="p-3">#{order.id}</td>
+										<td className="p-3">{order.contact ? order.contact.name : "N/A"}</td>
+										<td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
+										<td className="p-3">
+											<span
+												className={`px-2 py-1 rounded-full text-sm ${
+													order.status === "Shipped"
+														? "bg-blue-100 text-blue-800"
+														: order.status === "Processing"
+														? "bg-yellow-100 text-yellow-800"
+														: order.status === "Done"
+														? "bg-green-100 text-green-800"
+														: "bg-red-100 text-red-800"
+												}`}
+											>
+												{order.status}
+											</span>
+										</td>
+										<td className="p-3">{formatCurrency(order.total)}</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>
