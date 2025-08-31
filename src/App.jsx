@@ -13,6 +13,7 @@ import OrderDetails from "./pages/OrderDetails";
 import NewOrder from "./pages/NewOrder";
 import Settings from "./pages/Settings";
 import UserForm from "./pages/UserForm";
+import ContactSubmissions from "./pages/ContactSubmissions";
 
 function App() {
 	return (
@@ -39,6 +40,7 @@ function App() {
 				<Route path="category/:id" element={<CategoryForm />} />
 				<Route path="user/:id" element={<UserForm />} />
 				<Route path="settings" element={<Settings />} />
+				<Route path="contacts" element={<ContactSubmissions />} />
 			</Route>
 		</Routes>
 	);

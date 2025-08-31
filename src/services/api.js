@@ -100,6 +100,11 @@ const API = {
 				"Content-Type": "multipart/form-data",
 			},
 		}),
+	
+	// Contacts
+	getContacts: () => axiosInstance.get("/contacts"),
+	updateContact: (id, data) => axiosInstance.put(`/contacts/${id}`, data),
+	deleteContact: (id) => axiosInstance.delete(`/contacts/${id}`),
 };
 
 export default API;

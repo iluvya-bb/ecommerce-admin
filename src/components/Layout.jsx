@@ -44,6 +44,7 @@ function Sidebar({ user, onLogout }) {
                     <NavLink to="/orders" icon={<FaShoppingCart />}>Захиалга</NavLink>
                     <NavLink to="/customers" icon={<FaUsers />}>Хэрэглэгчид</NavLink>
                     <NavLink to="/categories" icon={<FaTags />}>Ангилал</NavLink>
+                    <NavLink to="/contacts" icon={<FaBell />}>Санал хүсэлт</NavLink>
                 </NavSection>
                 <NavSection title="General">
                     <NavLink to="/settings" icon={<FaCog />}>Тохиргоо</NavLink>
